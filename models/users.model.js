@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-mongoose.Schema({
+const userSchema = mongoose.Schema({
   username: {
     type: String,
     required: [true, "username is required"],
@@ -20,3 +20,7 @@ mongoose.Schema({
     ref: "todos",
   },
 });
+
+const users = mongoose.model("User", userSchema);
+
+export default users;

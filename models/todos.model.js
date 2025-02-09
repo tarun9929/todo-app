@@ -33,6 +33,6 @@ const todoSchema = mongoose.Schema({
   },
 });
 
-const users = mongoose.model("User", todoSchema);
+const todos = mongoose.model("Todo", todoSchema);
 
-export default users;
+export default todos;
