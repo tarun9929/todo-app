@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDatabase from "./connection.js";
+import userRouter from "./routes/userRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,8 @@ connectDatabase()
   .catch((err) => {
     console.log(err.message);
   });
+
+app.use("/api/users", userRouter);
 
 app.listen(PORT, (err) => {
   if (err) console.log(err.message);
