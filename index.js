@@ -22,5 +22,5 @@ app.use("/api/users", userRouter);
 app.listen(PORT, (err) => {
   if (err) console.log(err.message);
 
-  console.log(`server started at http://localhost:${PORT}`);
+  console.log(`server started at ${process.env.BASE_URL}:${PORT}`);
 });
