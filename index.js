@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDatabase from "./connection.js";
 import userRouter from "./routes/userRoutes.js";
+import userAuth from "./middlewares/userAuth.js";
+import todoRouter from "./routes/todoRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -18,6 +20,7 @@ connectDatabase()
   });
 
 app.use("/api/users", userRouter);
+app.use("/api/todos", todoRouter);
 
 app.listen(PORT, (err) => {
   if (err) console.log(err.message);

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import userAuth from "../middlewares/userAuth.js";
 import {
   login,
   register,

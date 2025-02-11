@@ -29,7 +29,6 @@ const todoSchema = mongoose.Schema({
   },
   completionDate: {
     type: Date,
-    required: true,
   },
 });
 
