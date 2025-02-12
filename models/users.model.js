@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    refreshTokens: [String],
     todos: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "todos",

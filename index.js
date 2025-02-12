@@ -20,7 +20,7 @@ connectDatabase()
   });
 
 app.use("/api/users", userRouter);
-app.use("/api/todos", todoRouter);
+app.use("/api/todos", userAuth, todoRouter);
 
 app.listen(PORT, (err) => {
   if (err) console.log(err.message);

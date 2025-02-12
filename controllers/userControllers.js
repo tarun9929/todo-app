@@ -2,6 +2,7 @@ import users from "../models/users.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/emailService.js";
+import { generateAccessToken } from "../utils/utilsFunctions.js";
 
 export async function register(req, res) {
   const { username, email, password } = req.body;
@@ -39,7 +40,8 @@ export async function login(req, res) {
     if (!(email && password))
       return res.status(400).json({ message: "All fields are required" });
 
-    const user = await users.findOne({ email });
+    const user = await users.findOne({ email }).select("+password");
+
     if (!user)
       return res.status(401).json({ message: "Unauthorized: User not found" });
 
@@ -49,13 +51,25 @@ export async function login(req, res) {
         .status(401)
         .json({ message: "Unauthorized: Incorrect password" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = generateAccessToken(user);
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-    res.status(200).json({ message: "Login successful", token });
+    await users.findByIdAndUpdate(
+      user.id,
+      { $push: { refreshTokens: refreshToken } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      accessToken: token,
+      refreshToken: refreshToken,
+    });
   } catch (err) {
-    console.error("Login Error:", err.message);
+    console.error("Login Error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -85,4 +99,17 @@ export async function verifyEmail(req, res) {
     console.error("Verification Error:", err.message);
     res.status(400).json({ error: "Invalid or expired token" });
   }
+}
+
+export async function refreshToken(req, res) {
+  const refToken = req.body.refToken;
+  if (!refToken) return res.status(401).json({ message: "no valid token" });
+  const token = await users.findOne({ refreshTokens: refToken });
+  if (!token) return res.status(403).json({ message: "invalid refresh token" });
+
+  jwt.verify(refToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: "invalid refresh token" });
+    const newToken = generateAccessToken({ user: user.id });
+    res.status(200).json({ accessToken: newToken });
+  });
 }
